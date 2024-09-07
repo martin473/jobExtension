@@ -6,8 +6,27 @@ chrome.action.onClicked.addListener((tab) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'saveElement') {
-    savedElements.push(request.element);
+    const existingIndex = savedElements.findIndex(el => 
+      el.id === request.element.id && 
+      el.name === request.element.name &&
+      el.tagName === request.element.tagName
+    );
+    if (existingIndex !== -1) {
+      savedElements[existingIndex] = request.element;
+    } else {
+      savedElements.push(request.element);
+    }
     console.log('Element saved:', request.element);
+  } else if (request.action === 'saveElementValue') {
+    const existingIndex = savedElements.findIndex(el => 
+      el.id === request.element.id && 
+      el.name === request.element.name &&
+      el.tagName === request.element.tagName
+    );
+    if (existingIndex !== -1) {
+      savedElements[existingIndex].value = request.element.value;
+    }
+    console.log('Element value saved:', request.element);
   }
 });
 

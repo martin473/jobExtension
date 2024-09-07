@@ -17,11 +17,14 @@ function injectScriptIntoIframes() {
 }
 
 function highlightSavedElements(elements) {
-  console.log('Highlighting saved elements:', elements);
+  console.log('Highlighting and filling saved elements:', elements);
   elements.forEach(elementInfo => {
     const element = findElementByInfo(elementInfo);
     if (element) {
       highlightElement(element);
+      if (elementInfo.value) {
+        element.value = elementInfo.value;
+      }
     }
   });
 }
@@ -92,6 +95,12 @@ function setupFormElementListeners(doc) {
       console.log('Blur event captured:', element.tagName);
       removeHighlight(element);
     });
+
+    // Add this new event listener
+    element.addEventListener('change', () => {
+      console.log('Change event captured:', element.tagName);
+      saveElementValue(element);
+    });
   });
 }
 
@@ -121,6 +130,15 @@ function getElementInfo(element) {
     parentClass: element.parentElement ? element.parentElement.className : '',
     role: element.getAttribute('role') || ''
   };
+}
+
+function saveElementValue(element) {
+  const elementInfo = getElementInfo(element);
+  elementInfo.value = element.value;
+  chrome.runtime.sendMessage({
+    action: 'saveElementValue',
+    element: elementInfo
+  });
 }
 
 console.log('Content script setup complete');
